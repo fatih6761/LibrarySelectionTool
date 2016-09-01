@@ -4,9 +4,13 @@ project(LibrarySelectionTool)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # include wxWidgets package
+set(wxWidgets_USE_STATIC_LIB ON)
 find_package(wxWidgets REQUIRED core base)
 include(${wxWidgets_USE_FILE})
 
+# include Boost package
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost REQUIRED filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
 

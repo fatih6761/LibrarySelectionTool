@@ -7,11 +7,6 @@
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 
-
-// TODO: arrgh... get rid of this anti-c++ freak
-// used for system() call to launch external program
-#include <cstdlib>
-
 #include "ListFileHelper.h"
 
 MyFrame::MyFrame()
@@ -32,7 +27,11 @@ MyFrame::MyFrame()
     wxBoxSizer *mboxMid = new wxBoxSizer(wxHORIZONTAL);
 
     mLeftPane = new wxListBox(this, LBOX_LEFT);
-    //mLeftPane->SetMaxSize(wxSize(700, 1000));
+
+    wxBoxSizer *mboxTop = new wxBoxSizer(wxHORIZONTAL);
+    mboxTop->Add(mTxtSrcDir, 1, wxEXPAND | wxALL, 5);
+    mboxTop->Add(mBtnSrcDir, 0, wxEXPAND | wxALL, 5);
+    mboxTop->Add(mBtnLoadList, 0, wxEXPAND | wxALL, 5);
 
     // Mid buttons
 //      {
@@ -48,17 +47,12 @@ MyFrame::MyFrame()
 //      }
 
     mRightPane = new wxListBox(this, LBOX_RIGHT);
-    //mRightPane->SetMaxSize(wxSize(700, 1000));
 
     mboxMid->Add(mLeftPane, 10, wxEXPAND | wxALL, 5);
     mboxMid->Add(mboxListCtlButtons, 1, wxALIGN_CENTER_VERTICAL, 5);
     mboxMid->Add(mRightPane, 10, wxEXPAND | wxALL, 5);
 //  }
 
-    wxBoxSizer *mboxTop = new wxBoxSizer(wxHORIZONTAL);
-    mboxTop->Add(mTxtSrcDir, 1, wxEXPAND | wxALL, 5);
-    mboxTop->Add(mBtnSrcDir, 0, wxEXPAND | wxALL, 5);
-    mboxTop->Add(mBtnLoadList, 0, wxEXPAND | wxALL, 5);
 
     wxBoxSizer *mboxBottom = new wxBoxSizer(wxHORIZONTAL);
     mTxtTotalSize = new wxStaticText(this, TXT_TOTSIZE, wxT("Toplam boyut: "));
@@ -134,18 +128,16 @@ void MyFrame::OnMoveRightButtonClick(wxCommandEvent &e) {
     int sel = mLeftPane->GetSelection();
     if (sel != -1) {
         moveSourceToDest(sel);
+        mLeftPane->SetSelection(std::min(sel, (int) m_sourceFiles.size() - 1));
     }
-    mLeftPane->SetSelection(std::min(sel, (int) m_sourceFiles.size() - 1));
-    mLeftPane->SetFocus();
 }
 
 void MyFrame::OnMoveLeftButtonClick(wxCommandEvent &) {
     int sel = mRightPane->GetSelection();
     if (sel != -1) {
         moveDestToSource(sel);
+        mRightPane->SetSelection(std::min(sel, (int) m_destFiles.size() - 1));
     }
-    mRightPane->SetSelection(std::min(sel, (int) m_destFiles.size() - 1));
-    mRightPane->SetFocus();
 }
 
 void MyFrame::OnMoveAllRightButtonClick(wxCommandEvent &) {
@@ -226,12 +218,18 @@ void MyFrame::moveDestToSource(int sel) {
     updateListBoxes();
 }
 
+#define UNUSED_RESULT(x) if (x);
+
 void MyFrame::playSourceItem(int sel) {
-    system(("vlc \"" + m_sourceFiles[sel].get_path() + "\" &").c_str());
+    UNUSED_RESULT(
+            system(("vlc \"" + m_sourceFiles[sel].get_path() + "\" &").c_str())
+    );
 }
 
 void MyFrame::playDestItem(int sel) {
-    system(("vlc \"" + m_destFiles[sel].get_path() + "\" &").c_str());
+    UNUSED_RESULT(
+            system(("vlc \"" + m_destFiles[sel].get_path() + "\" &").c_str())
+    );
 }
 
 template<typename LB, typename T>
