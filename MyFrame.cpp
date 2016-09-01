@@ -3,27 +3,26 @@
 //
 
 #include "MyFrame.h"
+
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 
+
+// TODO: arrgh... get rid of this anti-c++ freak
+// used for system() call to launch external program
+#include <cstdlib>
+
+#include "ListFileHelper.h"
+
 MyFrame::MyFrame()
         : wxFrame(nullptr, -1, wxT("Title"), wxDefaultPosition, wxSize(600, 600)) {
-    // Directory control boxes
+    // control boxes
 //  {
 //      {
-    // Source directory control box
-    wxBoxSizer *mboxDirLeft = new wxBoxSizer(wxHORIZONTAL);
 
     mTxtSrcDir = new wxStaticText(this, TXT_SRCDIR, wxT("Kaynak: "));
     mBtnSrcDir = new wxButton(this, BTN_SRCDIR, wxT("Aç..."));
-
-    mboxDirLeft->Add(mTxtSrcDir, 1, wxEXPAND | wxALL, 5);
-    mboxDirLeft->Add(mBtnSrcDir, 0, wxALL, 5);
-//      }
-
-//      {
-    //right control box
-    wxBoxSizer *mboxTopRight = new wxBoxSizer(wxHORIZONTAL);
+    mBtnLoadList = new wxButton(this, BTN_LOADLIST, wxT("Liste yükle"));
 
 //      }
 //  }
@@ -41,7 +40,7 @@ MyFrame::MyFrame()
     mBtnMoveAllRight = new wxButton(this, BTN_MOVEALLRIGHT, wxT("Hepsini\nEkle >>"));
     mBtnMoveRight = new wxButton(this, BTN_MOVERIGHT, wxT("Ekle >"));
     mBtnMoveLeft = new wxButton(this, BTN_MOVELEFT, wxT("< Çıkar"));
-    mBtnMoveAllLeft = new wxButton(this, BTN_MOVEALLRIGHT, wxT("<< Hepsini\nÇıkar"));
+    mBtnMoveAllLeft = new wxButton(this, BTN_MOVEALLLEFT, wxT("<< Hepsini\nÇıkar"));
     mboxListCtlButtons->Add(mBtnMoveAllRight, 0, wxEXPAND | wxALL, 5);
     mboxListCtlButtons->Add(mBtnMoveRight, 0, wxEXPAND | wxALL, 5);
     mboxListCtlButtons->Add(mBtnMoveLeft, 0, wxEXPAND | wxALL, 5);
@@ -57,8 +56,9 @@ MyFrame::MyFrame()
 //  }
 
     wxBoxSizer *mboxTop = new wxBoxSizer(wxHORIZONTAL);
-    mboxTop->Add(mboxDirLeft, 1, wxEXPAND | wxALL, 5);
-    mboxTop->Add(mboxTopRight, 1, wxEXPAND | wxALL, 5);
+    mboxTop->Add(mTxtSrcDir, 1, wxEXPAND | wxALL, 5);
+    mboxTop->Add(mBtnSrcDir, 0, wxEXPAND | wxALL, 5);
+    mboxTop->Add(mBtnLoadList, 0, wxEXPAND | wxALL, 5);
 
     wxBoxSizer *mboxBottom = new wxBoxSizer(wxHORIZONTAL);
     mTxtTotalSize = new wxStaticText(this, TXT_TOTSIZE, wxT("Toplam boyut: "));
@@ -76,6 +76,7 @@ MyFrame::MyFrame()
     mboxRoot->Add(mboxBottom, 0, wxEXPAND | wxALL, 5);
 
     mBtnSrcDir->Bind(wxEVT_BUTTON, &MyFrame::OnSrcButtonClick, this);
+    mBtnLoadList->Bind(wxEVT_BUTTON, &MyFrame::OnLoadListButtonClick, this);
 
     mBtnMoveAllRight->Bind(wxEVT_BUTTON, &MyFrame::OnMoveAllRightButtonClick, this);
     mBtnMoveRight->Bind(wxEVT_BUTTON, &MyFrame::OnMoveRightButtonClick, this);
@@ -101,10 +102,31 @@ void MyFrame::OnSrcButtonClick(wxCommandEvent &) {
     }
 }
 
-void MyFrame::OnDstButtonClick(wxCommandEvent &) {
-    wxDirDialog dlg(this, wxT("Hedef klasör"));
+void MyFrame::OnLoadListButtonClick(wxCommandEvent &) {
+    wxFileDialog dlg(this, wxT("Liste dosyası"));
+    std::vector<file_info> new_list;
+
     if (dlg.ShowModal() == wxID_OK) {
-        setDestDirectory(dlg.GetPath());
+        new_list =
+                ListFileHelper::load_list(std::string(dlg.GetPath().mb_str(wxConvUTF8)));
+
+        wxMessageDialog a(this, wxT("Mevcut liste silinsin mi?"),
+                          wxT("Liste Yükleme Seçeneği"), wxYES_NO | wxCANCEL | wxICON_INFORMATION);
+
+        switch (a.ShowModal()) {
+            case wxID_YES:
+                m_destFiles = new_list;
+                break;
+            case wxID_NO:
+                m_destFiles.insert(m_destFiles.end(), new_list.begin(), new_list.end());
+                break;
+            default:
+                break;
+        }
+
+        std::sort(m_destFiles.begin(), m_destFiles.end());
+
+        updateListBoxes();
     }
 }
 
@@ -113,7 +135,7 @@ void MyFrame::OnMoveRightButtonClick(wxCommandEvent &e) {
     if (sel != -1) {
         moveSourceToDest(sel);
     }
-    mLeftPane->SetSelection(std::min(sel, (int)m_sourceFiles.size()-1));
+    mLeftPane->SetSelection(std::min(sel, (int) m_sourceFiles.size() - 1));
     mLeftPane->SetFocus();
 }
 
@@ -122,7 +144,7 @@ void MyFrame::OnMoveLeftButtonClick(wxCommandEvent &) {
     if (sel != -1) {
         moveDestToSource(sel);
     }
-    mRightPane->SetSelection(std::min(sel, (int)m_destFiles.size()-1));
+    mRightPane->SetSelection(std::min(sel, (int) m_destFiles.size() - 1));
     mRightPane->SetFocus();
 }
 
@@ -154,9 +176,9 @@ void MyFrame::OnFilterExtButtonClick(wxCommandEvent &) {
 
     std::vector<file_info> new_src;
 
-    for (const file_info& x : m_sourceFiles) {
+    for (const file_info &x : m_sourceFiles) {
         std::string s = x.get_ext();
-        boost::algorithm::to_lower(s);
+        boost::to_lower(s);
         if (ext == s)
             new_src.emplace_back(x);
     }
@@ -169,34 +191,23 @@ void MyFrame::OnFilterExtButtonClick(wxCommandEvent &) {
 void MyFrame::OnSaveListButtonClick(wxCommandEvent &) {
     wxFileDialog dlg(this, wxT("Kaydedilecek dosya adı"), wxEmptyString, wxEmptyString, wxT("*.txt"), wxFD_SAVE);
     if (dlg.ShowModal() == wxID_OK) {
-        std::ofstream os(dlg.GetPath().mb_str(wxConvUTF8));
-        os << "-*- coding:utf8 -*-\n";
-        os << "List of selected files (ordered alphabetically): \n";
-        for (const auto& x : m_destFiles)
-            os << x.get_name() << '\n';
-        os << "-- END --\n";
+        ListFileHelper::save_list(m_destFiles, std::string(dlg.GetPath().mb_str(wxConvUTF8)));
     }
 }
 
-void MyFrame::setSourceDirectory(const wxString& path) {
+void MyFrame::setSourceDirectory(const wxString &path) {
     auto path2 = std::string(path.mb_str(wxConvUTF8).data());
 
     m_sourceDir = path2;
     m_sourceFiles = file_info::from_directory(path2);
 
     std::sort(m_sourceFiles.begin(), m_sourceFiles.end(),
-              [] (const file_info& a, const file_info& b) {
+              [](const file_info &a, const file_info &b) {
                   return a.get_name() < b.get_name();
               });
 
     updateDirTexts();
     updateListBoxes();
-}
-
-void MyFrame::setDestDirectory(const wxString& path) {
-    auto path2 = std::string(path.mb_str(wxConvUTF8).data());
-    m_destDir = path2;
-    updateDirTexts();
 }
 
 void MyFrame::moveSourceToDest(int sel) {
@@ -216,18 +227,19 @@ void MyFrame::moveDestToSource(int sel) {
 }
 
 void MyFrame::playSourceItem(int sel) {
-    std::cout << "left dbl" << std::endl;
+    system(("vlc \"" + m_sourceFiles[sel].get_path() + "\" &").c_str());
 }
 
 void MyFrame::playDestItem(int sel) {
-    std::cout << "right dbl" << std::endl;
+    system(("vlc \"" + m_destFiles[sel].get_path() + "\" &").c_str());
 }
 
 template<typename LB, typename T>
-void fill_pane(const LB& lb, std::vector<T> v) {
+void fill_pane(const LB &lb, std::vector<T> v) {
     std::vector<wxString> v2;
     v2.resize(v.size());
-    std::transform(v.begin(), v.end(), v2.begin(), [](const file_info& a) { return wxString(a.get_name().c_str(), wxConvUTF8); });
+    std::transform(v.begin(), v.end(), v2.begin(),
+                   [](const file_info &a) { return wxString(a.get_name().c_str(), wxConvUTF8); });
     lb->Clear();
     lb->Append(v2);
 };
@@ -237,7 +249,9 @@ void MyFrame::updateListBoxes() {
     fill_pane(mRightPane, m_destFiles);
 
     size_t total = std::accumulate(m_destFiles.begin(), m_destFiles.end(), (size_t) 0,
-        [](size_t a, const file_info& b) { return a + b.get_size(file_info::size_format::mbytes); });
+                                   [](size_t a, const file_info &b) {
+                                       return a + b.get_size(file_info::size_format::mbytes);
+                                   });
 
     mTxtTotalSize->SetLabelText(wxString("Toplam boyut: " + std::to_string(total) + " MB"));
 }

@@ -10,7 +10,7 @@ include(${wxWidgets_USE_FILE})
 find_package(Boost REQUIRED filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
 
-set(SOURCE_FILES main.cpp MyFrame.cpp MyFrame.h MyListSwapWidget.cpp MyListSwapWidget.h file_info.cpp file_info.h)
+set(SOURCE_FILES main.cpp MyFrame.cpp MyFrame.h MyListSwapWidget.cpp MyListSwapWidget.h file_info.cpp file_info.h ListFileHelper.cpp ListFileHelper.h)
 add_executable(LibrarySelectionTool ${SOURCE_FILES})
 
 target_link_libraries(LibrarySelectionTool ${wxWidgets_LIBRARIES} ${Boost_LIBRARIES})

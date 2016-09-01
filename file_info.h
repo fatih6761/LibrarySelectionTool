@@ -7,18 +7,16 @@
 
 #include <string>
 #include <vector>
-
-using std::string;
-using std::vector;
+#include <iostream>
 
 class file_info {
 public:
-    file_info(const string& _path);
-    file_info(const string& _path, const string& _fname, const string& _ext, size_t _size);
+    file_info(const std::string& _path);
+    file_info(const std::string& _path, const std::string& _fname, const std::string& _ext, size_t _size);
 
-    string get_path() const;
-    string get_name() const;
-    string get_ext() const;
+    std::string get_path() const;
+    std::string get_name() const;
+    std::string get_ext() const;
 
 
     enum class size_format {
@@ -27,14 +25,15 @@ public:
 
     size_t get_size(size_format fmt = size_format::bytes) const;
 
-    static vector<file_info> from_directory(const std::string& s);
+    static std::vector<file_info> from_directory(const std::string& s);
 
     bool operator <(const file_info& other);
 
+
 private:
-    string m_path;
-    string m_filename;
-    string m_extension;
+    std::string m_path;
+    std::string m_filename;
+    std::string m_extension;
     size_t m_size_in_bytes;
 };
 

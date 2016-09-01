@@ -19,7 +19,7 @@ public:
     MyFrame();
 
     void OnSrcButtonClick(wxCommandEvent&);
-    void OnDstButtonClick(wxCommandEvent&);
+    void OnLoadListButtonClick(wxCommandEvent &);
 
     void OnMoveAllRightButtonClick(wxCommandEvent&);
     void OnMoveRightButtonClick(wxCommandEvent&);
@@ -34,7 +34,7 @@ public:
 
     enum ID : int {
         BTN_SRCDIR = 0,
-        BTN_DSTDIR,
+        BTN_LOADLIST,
         BTN_MOVELEFT,
         BTN_MOVERIGHT,
         BTN_MOVEALLRIGHT,
@@ -43,7 +43,6 @@ public:
         BTN_FILTER,
 
         TXT_SRCDIR,
-        TXT_DSTDIR,
         TXT_TOTSIZE,
 
         LBOX_LEFT,
@@ -53,6 +52,7 @@ public:
     // UI elements
     wxStaticText*   mTxtSrcDir;
     wxButton*       mBtnSrcDir;
+    wxButton*       mBtnLoadList;
 
     wxListBox*      mLeftPane;
     wxButton*       mBtnMoveAllRight;
@@ -68,14 +68,11 @@ public:
 
     // Members
     std::string m_sourceDir;
-    std::string m_destDir;
 
     std::vector<file_info> m_sourceFiles;
     std::vector<file_info> m_destFiles;
 
     void setSourceDirectory(const wxString& path);
-
-    void setDestDirectory(const wxString& path);
 
     void moveSourceToDest(int sel);
 

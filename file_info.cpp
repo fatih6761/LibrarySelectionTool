@@ -8,6 +8,8 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 
+using std::string;
+using std::vector;
 using namespace boost::filesystem;
 
 file_info::file_info(const std::string &s) {
