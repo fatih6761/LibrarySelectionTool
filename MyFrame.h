@@ -10,7 +10,7 @@
 
 #include <string>
 #include <vector>
-#include <tuple>
+#include <algorithm>
 
 #include "file_info.h"
 
@@ -26,14 +26,18 @@ public:
     void OnRightListDoubleClick(wxCommandEvent&);
     void OnLeftListDoubleClick(wxCommandEvent&);
 
+    void OnSaveListButtonClick(wxCommandEvent&);
+
     enum ID : int {
         BTN_SRCDIR = 0,
         BTN_DSTDIR,
         BTN_MOVELEFT,
         BTN_MOVERIGHT,
+        BTN_SAVE,
 
         TXT_SRCDIR,
         TXT_DSTDIR,
+        TXT_TOTSIZE,
 
         LBOX_LEFT,
         LBOX_RIGHT
@@ -50,6 +54,9 @@ public:
     wxButton*       mBtnMoveRight;
     wxButton*       mBtnMoveLeft;
     wxListBox*      mRightPane;
+
+    wxStaticText*   mTxtTotalSize;
+    wxButton*       mBtnSaveList;
 
 
     // Members
@@ -70,6 +77,10 @@ public:
     void playSourceItem(int sel);
 
     void playDestItem(int sel);
+
+    void updateListBoxes();
+
+    void updateDirTexts();
 };
 
 

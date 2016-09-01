@@ -84,3 +84,7 @@ vector<file_info> file_info::from_directory(const std::string &s) {
 
     return files;
 }
+
+bool file_info::operator<(const file_info &other) {
+    return (m_filename < other.m_filename);
+}

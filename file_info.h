@@ -27,6 +27,8 @@ public:
 
     static vector<file_info> from_directory(const std::string& s);
 
+    bool operator <(const file_info& other);
+
 private:
     string m_path;
     string m_filename;
