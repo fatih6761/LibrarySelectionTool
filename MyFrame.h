@@ -20,8 +20,11 @@ public:
 
     void OnSrcButtonClick(wxCommandEvent&);
     void OnDstButtonClick(wxCommandEvent&);
+
+    void OnMoveAllRightButtonClick(wxCommandEvent&);
     void OnMoveRightButtonClick(wxCommandEvent&);
     void OnMoveLeftButtonClick(wxCommandEvent&);
+    void OnMoveAllLeftButtonClick(wxCommandEvent&);
 
     void OnRightListDoubleClick(wxCommandEvent&);
     void OnLeftListDoubleClick(wxCommandEvent&);
@@ -34,6 +37,8 @@ public:
         BTN_DSTDIR,
         BTN_MOVELEFT,
         BTN_MOVERIGHT,
+        BTN_MOVEALLRIGHT,
+        BTN_MOVEALLLEFT,
         BTN_SAVE,
         BTN_FILTER,
 
@@ -49,12 +54,11 @@ public:
     wxStaticText*   mTxtSrcDir;
     wxButton*       mBtnSrcDir;
 
-    wxStaticText*   mTxtDstDir;
-    wxButton*       mBtnDstDir;
-
     wxListBox*      mLeftPane;
+    wxButton*       mBtnMoveAllRight;
     wxButton*       mBtnMoveRight;
     wxButton*       mBtnMoveLeft;
+    wxButton*       mBtnMoveAllLeft;
     wxListBox*      mRightPane;
 
     wxStaticText*   mTxtTotalSize;
@@ -84,6 +88,10 @@ public:
     void updateListBoxes();
 
     void updateDirTexts();
+
+    void moveAllSourceToDest();
+
+    void moveAllDestToSource();
 };
 
 

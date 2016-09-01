@@ -7,7 +7,7 @@
 #include <boost/algorithm/string.hpp>
 
 MyFrame::MyFrame()
-        : wxFrame(nullptr, -1, wxT("Title"), wxDefaultPosition, wxSize(500, 300)) {
+        : wxFrame(nullptr, -1, wxT("Title"), wxDefaultPosition, wxSize(600, 600)) {
     // Directory control boxes
 //  {
 //      {
@@ -22,73 +22,74 @@ MyFrame::MyFrame()
 //      }
 
 //      {
-    // Destination directory control box
-    wxBoxSizer *mboxDirRight = new wxBoxSizer(wxHORIZONTAL);
+    //right control box
+    wxBoxSizer *mboxTopRight = new wxBoxSizer(wxHORIZONTAL);
 
-    mTxtDstDir = new wxStaticText(this, TXT_DSTDIR, wxT("Hedef: "));
-    mBtnDstDir = new wxButton(this, BTN_DSTDIR, wxT("Aç..."));
-
-    mboxDirRight->Add(mTxtDstDir, 1, wxEXPAND | wxALL, 5);
-    mboxDirRight->Add(mBtnDstDir, 0, wxALL, 5);
 //      }
 //  }
 
     // List boxes
 //  {
-    wxBoxSizer *mboxList = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *mboxMid = new wxBoxSizer(wxHORIZONTAL);
 
     mLeftPane = new wxListBox(this, LBOX_LEFT);
     //mLeftPane->SetMaxSize(wxSize(700, 1000));
 
     // Mid buttons
 //      {
-    wxBoxSizer *mboxListMid = new wxBoxSizer(wxVERTICAL);
-    mBtnMoveRight = new wxButton(this, BTN_MOVERIGHT, wxT("Ekle >>"));
-    mBtnMoveLeft = new wxButton(this, BTN_MOVELEFT, wxT("<< Çıkar"));
-    mboxListMid->Add(mBtnMoveRight, 0, wxEXPAND | wxALL, 5);
-    mboxListMid->Add(mBtnMoveLeft, 0, wxEXPAND | wxALL, 5);
+    wxBoxSizer *mboxListCtlButtons = new wxBoxSizer(wxVERTICAL);
+    mBtnMoveAllRight = new wxButton(this, BTN_MOVEALLRIGHT, wxT("Hepsini\nEkle >>"));
+    mBtnMoveRight = new wxButton(this, BTN_MOVERIGHT, wxT("Ekle >"));
+    mBtnMoveLeft = new wxButton(this, BTN_MOVELEFT, wxT("< Çıkar"));
+    mBtnMoveAllLeft = new wxButton(this, BTN_MOVEALLRIGHT, wxT("<< Hepsini\nÇıkar"));
+    mboxListCtlButtons->Add(mBtnMoveAllRight, 0, wxEXPAND | wxALL, 5);
+    mboxListCtlButtons->Add(mBtnMoveRight, 0, wxEXPAND | wxALL, 5);
+    mboxListCtlButtons->Add(mBtnMoveLeft, 0, wxEXPAND | wxALL, 5);
+    mboxListCtlButtons->Add(mBtnMoveAllLeft, 0, wxEXPAND | wxALL, 5);
 //      }
 
     mRightPane = new wxListBox(this, LBOX_RIGHT);
     //mRightPane->SetMaxSize(wxSize(700, 1000));
 
-    mboxList->Add(mLeftPane, 10, wxEXPAND | wxALL, 5);
-    mboxList->Add(mboxListMid, 1, wxALIGN_CENTER_VERTICAL, 5);
-    mboxList->Add(mRightPane, 10, wxEXPAND | wxALL, 5);
+    mboxMid->Add(mLeftPane, 10, wxEXPAND | wxALL, 5);
+    mboxMid->Add(mboxListCtlButtons, 1, wxALIGN_CENTER_VERTICAL, 5);
+    mboxMid->Add(mRightPane, 10, wxEXPAND | wxALL, 5);
 //  }
 
     wxBoxSizer *mboxTop = new wxBoxSizer(wxHORIZONTAL);
     mboxTop->Add(mboxDirLeft, 1, wxEXPAND | wxALL, 5);
-    mboxTop->Add(mboxDirRight, 1, wxEXPAND | wxALL, 5);
-
-    wxBoxSizer *mboxRoot = new wxBoxSizer(wxVERTICAL);
-    mboxRoot->Add(mboxTop, 0, wxEXPAND | wxALL, 5);
-    mboxRoot->Add(mboxList, 1, wxEXPAND | wxALL, 5);
+    mboxTop->Add(mboxTopRight, 1, wxEXPAND | wxALL, 5);
 
     wxBoxSizer *mboxBottom = new wxBoxSizer(wxHORIZONTAL);
     mTxtTotalSize = new wxStaticText(this, TXT_TOTSIZE, wxT("Toplam boyut: "));
     mBtnFilterExt = new wxButton(this, BTN_FILTER, wxT("Filtre"));
-    mBtnFilterExt->Bind(wxEVT_BUTTON, &MyFrame::OnFilterExtButtonClick, this);
     mBtnSaveList = new wxButton(this, BTN_SAVE, wxT("Listeyi kaydet..."));
-    mBtnSaveList->Bind(wxEVT_BUTTON, &MyFrame::OnSaveListButtonClick, this);
 
     mboxBottom->Add(mTxtTotalSize, 100, wxEXPAND | wxALL, 5);
     mboxBottom->Add(mBtnFilterExt, 1, wxALL, 5);
     mboxBottom->Add(mBtnSaveList, 1, wxALL, 5);
 
-    mboxRoot->Add(mboxBottom);
+    wxBoxSizer *mboxRoot = new wxBoxSizer(wxVERTICAL);
 
-
-    this->SetSizer(mboxRoot);
-    this->Layout();
+    mboxRoot->Add(mboxTop, 0, wxEXPAND | wxALL, 5);
+    mboxRoot->Add(mboxMid, 1, wxEXPAND | wxALL, 5);
+    mboxRoot->Add(mboxBottom, 0, wxEXPAND | wxALL, 5);
 
     mBtnSrcDir->Bind(wxEVT_BUTTON, &MyFrame::OnSrcButtonClick, this);
-    mBtnDstDir->Bind(wxEVT_BUTTON, &MyFrame::OnDstButtonClick, this);
+
+    mBtnMoveAllRight->Bind(wxEVT_BUTTON, &MyFrame::OnMoveAllRightButtonClick, this);
     mBtnMoveRight->Bind(wxEVT_BUTTON, &MyFrame::OnMoveRightButtonClick, this);
     mBtnMoveLeft->Bind(wxEVT_BUTTON, &MyFrame::OnMoveLeftButtonClick, this);
+    mBtnMoveAllLeft->Bind(wxEVT_BUTTON, &MyFrame::OnMoveAllLeftButtonClick, this);
 
     mLeftPane->Bind(wxEVT_LISTBOX_DCLICK, &MyFrame::OnLeftListDoubleClick, this);
     mRightPane->Bind(wxEVT_LISTBOX_DCLICK, &MyFrame::OnRightListDoubleClick, this);
+
+    mBtnFilterExt->Bind(wxEVT_BUTTON, &MyFrame::OnFilterExtButtonClick, this);
+    mBtnSaveList->Bind(wxEVT_BUTTON, &MyFrame::OnSaveListButtonClick, this);
+
+    this->SetSizer(mboxRoot);
+    this->Layout();
 
     this->Centre(wxBOTH);
 }
@@ -124,6 +125,15 @@ void MyFrame::OnMoveLeftButtonClick(wxCommandEvent &) {
     mRightPane->SetSelection(std::min(sel, (int)m_destFiles.size()-1));
     mRightPane->SetFocus();
 }
+
+void MyFrame::OnMoveAllRightButtonClick(wxCommandEvent &) {
+    moveAllSourceToDest();
+}
+
+void MyFrame::OnMoveAllLeftButtonClick(wxCommandEvent &) {
+    moveAllDestToSource();
+}
+
 
 void MyFrame::OnRightListDoubleClick(wxCommandEvent &) {
     int sel = mRightPane->GetSelection();
@@ -234,5 +244,16 @@ void MyFrame::updateListBoxes() {
 
 void MyFrame::updateDirTexts() {
     mTxtSrcDir->SetLabelText(m_sourceDir);
-    mTxtDstDir->SetLabelText(m_destDir);
+}
+
+void MyFrame::moveAllSourceToDest() {
+    m_destFiles.insert(m_destFiles.end(), m_sourceFiles.begin(), m_sourceFiles.end());
+    m_sourceFiles.clear();
+    updateListBoxes();
+}
+
+void MyFrame::moveAllDestToSource() {
+    m_sourceFiles.insert(m_sourceFiles.end(), m_destFiles.begin(), m_destFiles.end());
+    m_destFiles.clear();
+    updateListBoxes();
 }
