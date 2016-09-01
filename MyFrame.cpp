@@ -4,6 +4,7 @@
 
 #include "MyFrame.h"
 #include <fstream>
+#include <boost/algorithm/string.hpp>
 
 MyFrame::MyFrame()
         : wxFrame(nullptr, -1, wxT("Title"), wxDefaultPosition, wxSize(500, 300)) {
@@ -66,10 +67,13 @@ MyFrame::MyFrame()
 
     wxBoxSizer *mboxBottom = new wxBoxSizer(wxHORIZONTAL);
     mTxtTotalSize = new wxStaticText(this, TXT_TOTSIZE, wxT("Toplam boyut: "));
+    mBtnFilterExt = new wxButton(this, BTN_FILTER, wxT("Filtre"));
+    mBtnFilterExt->Bind(wxEVT_BUTTON, &MyFrame::OnFilterExtButtonClick, this);
     mBtnSaveList = new wxButton(this, BTN_SAVE, wxT("Listeyi kaydet..."));
     mBtnSaveList->Bind(wxEVT_BUTTON, &MyFrame::OnSaveListButtonClick, this);
 
     mboxBottom->Add(mTxtTotalSize, 100, wxEXPAND | wxALL, 5);
+    mboxBottom->Add(mBtnFilterExt, 1, wxALL, 5);
     mboxBottom->Add(mBtnSaveList, 1, wxALL, 5);
 
     mboxRoot->Add(mboxBottom);
@@ -134,6 +138,23 @@ void MyFrame::OnLeftListDoubleClick(wxCommandEvent &) {
         playSourceItem(sel);
     }
 }
+
+void MyFrame::OnFilterExtButtonClick(wxCommandEvent &) {
+    const std::string ext = ".mp3";
+
+    std::vector<file_info> new_src;
+
+    for (const file_info& x : m_sourceFiles) {
+        std::string s = x.get_ext();
+        boost::algorithm::to_lower(s);
+        if (ext == s)
+            new_src.emplace_back(x);
+    }
+
+    std::swap(m_sourceFiles, new_src);
+    updateListBoxes();
+}
+
 
 void MyFrame::OnSaveListButtonClick(wxCommandEvent &) {
     wxFileDialog dlg(this, wxT("Kaydedilecek dosya adı"), wxEmptyString, wxEmptyString, wxT("*.txt"), wxFD_SAVE);

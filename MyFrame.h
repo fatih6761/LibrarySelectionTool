@@ -26,6 +26,7 @@ public:
     void OnRightListDoubleClick(wxCommandEvent&);
     void OnLeftListDoubleClick(wxCommandEvent&);
 
+    void OnFilterExtButtonClick(wxCommandEvent&);
     void OnSaveListButtonClick(wxCommandEvent&);
 
     enum ID : int {
@@ -34,6 +35,7 @@ public:
         BTN_MOVELEFT,
         BTN_MOVERIGHT,
         BTN_SAVE,
+        BTN_FILTER,
 
         TXT_SRCDIR,
         TXT_DSTDIR,
@@ -56,6 +58,7 @@ public:
     wxListBox*      mRightPane;
 
     wxStaticText*   mTxtTotalSize;
+    wxButton*       mBtnFilterExt;
     wxButton*       mBtnSaveList;
 
 

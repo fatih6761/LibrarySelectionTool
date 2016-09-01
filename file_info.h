@@ -14,10 +14,12 @@ using std::vector;
 class file_info {
 public:
     file_info(const string& _path);
-    file_info(const string& _path, const string& _fname, size_t _size);
+    file_info(const string& _path, const string& _fname, const string& _ext, size_t _size);
 
     string get_path() const;
     string get_name() const;
+    string get_ext() const;
+
 
     enum class size_format {
         bytes, kbytes, mbytes
@@ -32,6 +34,7 @@ public:
 private:
     string m_path;
     string m_filename;
+    string m_extension;
     size_t m_size_in_bytes;
 };
 

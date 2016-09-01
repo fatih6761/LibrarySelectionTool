@@ -18,6 +18,7 @@ file_info::file_info(const std::string &s) {
             if (is_regular_file(p)) {
                 m_path = p.string();
                 m_filename = p.filename().string();
+                m_extension = p.extension().string();
                 m_size_in_bytes = file_size(p);
             } else {
                 std::cerr << "FileInfo: " << p << " is not a regular file." << std::endl;
@@ -30,8 +31,8 @@ file_info::file_info(const std::string &s) {
     }
 }
 
-file_info::file_info(const string &_path, const string &_fname, size_t _size)
-        : m_path(_path), m_filename(_fname), m_size_in_bytes(_size) {
+file_info::file_info(const string &_path, const string &_fname, const string& _ext, size_t _size)
+        : m_path(_path), m_filename(_fname), m_extension(_ext), m_size_in_bytes(_size) {
     //
 }
 
@@ -41,6 +42,10 @@ std::string file_info::get_path() const {
 
 std::string file_info::get_name() const {
     return m_filename;
+}
+
+std::string file_info::get_ext() const {
+    return m_extension;
 }
 
 size_t file_info::get_size(file_info::size_format fmt) const {
@@ -69,7 +74,7 @@ vector<file_info> file_info::from_directory(const std::string &s) {
                 for (directory_entry& x : directory_iterator(p)) {
                     auto y = x.path();
                     if (is_regular_file(y)) {
-                        files.emplace_back(y.string(), y.filename().string(), file_size(y));
+                        files.emplace_back(y.string(), y.filename().string(), y.extension().string(), file_size(y));
                     }
                 }
             } else {
