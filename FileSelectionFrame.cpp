@@ -2,14 +2,14 @@
 // Created by fatih on 9/1/16.
 //
 
-#include "MyFrame.h"
+#include "FileSelectionFrame.h"
 
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 
 #include "ListFileHelper.h"
 
-MyFrame::MyFrame()
+FileSelectionFrame::FileSelectionFrame()
         : wxFrame(nullptr, -1, wxT("Title"), wxDefaultPosition, wxSize(600, 600)) {
     // control boxes
 //  {
@@ -69,19 +69,19 @@ MyFrame::MyFrame()
     mboxRoot->Add(mboxMid, 1, wxEXPAND | wxALL, 5);
     mboxRoot->Add(mboxBottom, 0, wxEXPAND | wxALL, 5);
 
-    mBtnSrcDir->Bind(wxEVT_BUTTON, &MyFrame::OnSrcButtonClick, this);
-    mBtnLoadList->Bind(wxEVT_BUTTON, &MyFrame::OnLoadListButtonClick, this);
+    mBtnSrcDir->Bind(wxEVT_BUTTON, &FileSelectionFrame::OnSrcButtonClick, this);
+    mBtnLoadList->Bind(wxEVT_BUTTON, &FileSelectionFrame::OnLoadListButtonClick, this);
 
-    mBtnMoveAllRight->Bind(wxEVT_BUTTON, &MyFrame::OnMoveAllRightButtonClick, this);
-    mBtnMoveRight->Bind(wxEVT_BUTTON, &MyFrame::OnMoveRightButtonClick, this);
-    mBtnMoveLeft->Bind(wxEVT_BUTTON, &MyFrame::OnMoveLeftButtonClick, this);
-    mBtnMoveAllLeft->Bind(wxEVT_BUTTON, &MyFrame::OnMoveAllLeftButtonClick, this);
+    mBtnMoveAllRight->Bind(wxEVT_BUTTON, &FileSelectionFrame::OnMoveAllRightButtonClick, this);
+    mBtnMoveRight->Bind(wxEVT_BUTTON, &FileSelectionFrame::OnMoveRightButtonClick, this);
+    mBtnMoveLeft->Bind(wxEVT_BUTTON, &FileSelectionFrame::OnMoveLeftButtonClick, this);
+    mBtnMoveAllLeft->Bind(wxEVT_BUTTON, &FileSelectionFrame::OnMoveAllLeftButtonClick, this);
 
-    mLeftPane->Bind(wxEVT_LISTBOX_DCLICK, &MyFrame::OnLeftListDoubleClick, this);
-    mRightPane->Bind(wxEVT_LISTBOX_DCLICK, &MyFrame::OnRightListDoubleClick, this);
+    mLeftPane->Bind(wxEVT_LISTBOX_DCLICK, &FileSelectionFrame::OnLeftListDoubleClick, this);
+    mRightPane->Bind(wxEVT_LISTBOX_DCLICK, &FileSelectionFrame::OnRightListDoubleClick, this);
 
-    mBtnFilterExt->Bind(wxEVT_BUTTON, &MyFrame::OnFilterExtButtonClick, this);
-    mBtnSaveList->Bind(wxEVT_BUTTON, &MyFrame::OnSaveListButtonClick, this);
+    mBtnFilterExt->Bind(wxEVT_BUTTON, &FileSelectionFrame::OnFilterExtButtonClick, this);
+    mBtnSaveList->Bind(wxEVT_BUTTON, &FileSelectionFrame::OnSaveListButtonClick, this);
 
     this->SetSizer(mboxRoot);
     this->Layout();
@@ -89,14 +89,14 @@ MyFrame::MyFrame()
     this->Centre(wxBOTH);
 }
 
-void MyFrame::OnSrcButtonClick(wxCommandEvent &) {
+void FileSelectionFrame::OnSrcButtonClick(wxCommandEvent &) {
     wxDirDialog dlg(this, wxT("Kaynak klasör"));
     if (dlg.ShowModal() == wxID_OK) {
         setSourceDirectory(dlg.GetPath());
     }
 }
 
-void MyFrame::OnLoadListButtonClick(wxCommandEvent &) {
+void FileSelectionFrame::OnLoadListButtonClick(wxCommandEvent &) {
     wxFileDialog dlg(this, wxT("Liste dosyası"));
     std::vector<file_info> new_list;
 
@@ -124,7 +124,7 @@ void MyFrame::OnLoadListButtonClick(wxCommandEvent &) {
     }
 }
 
-void MyFrame::OnMoveRightButtonClick(wxCommandEvent &e) {
+void FileSelectionFrame::OnMoveRightButtonClick(wxCommandEvent &e) {
     int sel = mLeftPane->GetSelection();
     if (sel != -1) {
         moveSourceToDest(sel);
@@ -132,7 +132,7 @@ void MyFrame::OnMoveRightButtonClick(wxCommandEvent &e) {
     }
 }
 
-void MyFrame::OnMoveLeftButtonClick(wxCommandEvent &) {
+void FileSelectionFrame::OnMoveLeftButtonClick(wxCommandEvent &) {
     int sel = mRightPane->GetSelection();
     if (sel != -1) {
         moveDestToSource(sel);
@@ -140,30 +140,30 @@ void MyFrame::OnMoveLeftButtonClick(wxCommandEvent &) {
     }
 }
 
-void MyFrame::OnMoveAllRightButtonClick(wxCommandEvent &) {
+void FileSelectionFrame::OnMoveAllRightButtonClick(wxCommandEvent &) {
     moveAllSourceToDest();
 }
 
-void MyFrame::OnMoveAllLeftButtonClick(wxCommandEvent &) {
+void FileSelectionFrame::OnMoveAllLeftButtonClick(wxCommandEvent &) {
     moveAllDestToSource();
 }
 
 
-void MyFrame::OnRightListDoubleClick(wxCommandEvent &) {
+void FileSelectionFrame::OnRightListDoubleClick(wxCommandEvent &) {
     int sel = mRightPane->GetSelection();
     if (sel != -1) {
         playDestItem(sel);
     }
 }
 
-void MyFrame::OnLeftListDoubleClick(wxCommandEvent &) {
+void FileSelectionFrame::OnLeftListDoubleClick(wxCommandEvent &) {
     int sel = mLeftPane->GetSelection();
     if (sel != -1) {
         playSourceItem(sel);
     }
 }
 
-void MyFrame::OnFilterExtButtonClick(wxCommandEvent &) {
+void FileSelectionFrame::OnFilterExtButtonClick(wxCommandEvent &) {
     const std::string ext = ".mp3";
 
     std::vector<file_info> new_src;
@@ -180,14 +180,14 @@ void MyFrame::OnFilterExtButtonClick(wxCommandEvent &) {
 }
 
 
-void MyFrame::OnSaveListButtonClick(wxCommandEvent &) {
+void FileSelectionFrame::OnSaveListButtonClick(wxCommandEvent &) {
     wxFileDialog dlg(this, wxT("Kaydedilecek dosya adı"), wxEmptyString, wxEmptyString, wxT("*.txt"), wxFD_SAVE);
     if (dlg.ShowModal() == wxID_OK) {
         ListFileHelper::save_list(m_destFiles, std::string(dlg.GetPath().mb_str(wxConvUTF8)));
     }
 }
 
-void MyFrame::setSourceDirectory(const wxString &path) {
+void FileSelectionFrame::setSourceDirectory(const wxString &path) {
     auto path2 = std::string(path.mb_str(wxConvUTF8).data());
 
     m_sourceDir = path2;
@@ -202,7 +202,7 @@ void MyFrame::setSourceDirectory(const wxString &path) {
     updateListBoxes();
 }
 
-void MyFrame::moveSourceToDest(int sel) {
+void FileSelectionFrame::moveSourceToDest(int sel) {
     auto item = m_sourceFiles[sel];
     m_sourceFiles.erase(m_sourceFiles.begin() + sel);
     m_destFiles.push_back(item);
@@ -210,7 +210,7 @@ void MyFrame::moveSourceToDest(int sel) {
     updateListBoxes();
 }
 
-void MyFrame::moveDestToSource(int sel) {
+void FileSelectionFrame::moveDestToSource(int sel) {
     auto item = m_destFiles[sel];
     m_destFiles.erase(m_destFiles.begin() + sel);
     m_sourceFiles.push_back(item);
@@ -220,13 +220,13 @@ void MyFrame::moveDestToSource(int sel) {
 
 #define UNUSED_RESULT(x) if (x);
 
-void MyFrame::playSourceItem(int sel) {
+void FileSelectionFrame::playSourceItem(int sel) {
     UNUSED_RESULT(
             system(("vlc \"" + m_sourceFiles[sel].get_path() + "\" &").c_str())
     );
 }
 
-void MyFrame::playDestItem(int sel) {
+void FileSelectionFrame::playDestItem(int sel) {
     UNUSED_RESULT(
             system(("vlc \"" + m_destFiles[sel].get_path() + "\" &").c_str())
     );
@@ -242,7 +242,7 @@ void fill_pane(const LB &lb, std::vector<T> v) {
     lb->Append(v2);
 };
 
-void MyFrame::updateListBoxes() {
+void FileSelectionFrame::updateListBoxes() {
     fill_pane(mLeftPane, m_sourceFiles);
     fill_pane(mRightPane, m_destFiles);
 
@@ -254,17 +254,17 @@ void MyFrame::updateListBoxes() {
     mTxtTotalSize->SetLabelText(wxString("Toplam boyut: " + std::to_string(total) + " MB"));
 }
 
-void MyFrame::updateDirTexts() {
+void FileSelectionFrame::updateDirTexts() {
     mTxtSrcDir->SetLabelText(m_sourceDir);
 }
 
-void MyFrame::moveAllSourceToDest() {
+void FileSelectionFrame::moveAllSourceToDest() {
     m_destFiles.insert(m_destFiles.end(), m_sourceFiles.begin(), m_sourceFiles.end());
     m_sourceFiles.clear();
     updateListBoxes();
 }
 
-void MyFrame::moveAllDestToSource() {
+void FileSelectionFrame::moveAllDestToSource() {
     m_sourceFiles.insert(m_sourceFiles.end(), m_destFiles.begin(), m_destFiles.end());
     m_destFiles.clear();
     updateListBoxes();

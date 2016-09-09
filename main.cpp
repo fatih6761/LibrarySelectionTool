@@ -1,18 +1,15 @@
 #include <wx/wx.h>
 
-#include "MyFrame.h"
+#include "ToolSelectionDialog.h"
 
 class MyApp: public wxApp {
 public:
-    virtual bool OnInit();
+    virtual bool OnInit() {
+        ToolSelectionDialog *mainDialog1 = new ToolSelectionDialog;
+        mainDialog1->Show(true);
+        SetTopWindow(mainDialog1);
+        return true;
+    }
 };
 
 IMPLEMENT_APP(MyApp)
-
-bool MyApp::OnInit() {
-    MyFrame* myFrame1 = new MyFrame;
-    myFrame1->Show(true);
-    myFrame1->Maximize(true);
-    SetTopWindow(myFrame1);
-    return true;
-}

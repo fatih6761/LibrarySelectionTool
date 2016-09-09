@@ -2,8 +2,8 @@
 // Created by fatih on 9/1/16.
 //
 
-#ifndef LIBRARYSELECTIONTOOL_MYFRAME_H
-#define LIBRARYSELECTIONTOOL_MYFRAME_H
+#ifndef LIBRARYSELECTIONTOOL_FILESELECTIONFRAME_H
+#define LIBRARYSELECTIONTOOL_FILESELECTIONFRAME_H
 
 
 #include <wx/wx.h>
@@ -14,9 +14,9 @@
 
 #include "file_info.h"
 
-class MyFrame : public wxFrame {
+class FileSelectionFrame : public wxFrame {
 public:
-    MyFrame();
+    FileSelectionFrame();
 
     void OnSrcButtonClick(wxCommandEvent&);
     void OnLoadListButtonClick(wxCommandEvent &);
@@ -92,4 +92,4 @@ public:
 };
 
 
-#endif //LIBRARYSELECTIONTOOL_MYFRAME_H
+#endif //LIBRARYSELECTIONTOOL_FILESELECTIONFRAME_H
