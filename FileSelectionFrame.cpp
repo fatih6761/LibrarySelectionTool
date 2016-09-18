@@ -19,19 +19,19 @@ FileSelectionFrame::FileSelectionFrame()
     mBtnSrcDir = new wxButton(this, BTN_SRCDIR, wxT("Aç..."));
     mBtnLoadList = new wxButton(this, BTN_LOADLIST, wxT("Liste yükle"));
 
+    wxBoxSizer *mboxTop = new wxBoxSizer(wxHORIZONTAL);
+    mboxTop->Add(mTxtSrcDir, 1, wxEXPAND | wxALL, 5);
+    mboxTop->Add(mBtnSrcDir, 0, wxEXPAND | wxALL, 5);
+    mboxTop->Add(mBtnLoadList, 0, wxEXPAND | wxALL, 5);
+
 //      }
 //  }
 
     // List boxes
 //  {
-    wxBoxSizer *mboxMid = new wxBoxSizer(wxHORIZONTAL);
+    auto *mboxMid = new wxBoxSizer(wxHORIZONTAL);
 
     mLeftPane = new wxListBox(this, LBOX_LEFT);
-
-    wxBoxSizer *mboxTop = new wxBoxSizer(wxHORIZONTAL);
-    mboxTop->Add(mTxtSrcDir, 1, wxEXPAND | wxALL, 5);
-    mboxTop->Add(mBtnSrcDir, 0, wxEXPAND | wxALL, 5);
-    mboxTop->Add(mBtnLoadList, 0, wxEXPAND | wxALL, 5);
 
     // Mid buttons
 //      {
@@ -48,9 +48,9 @@ FileSelectionFrame::FileSelectionFrame()
 
     mRightPane = new wxListBox(this, LBOX_RIGHT);
 
-    mboxMid->Add(mLeftPane, 10, wxEXPAND | wxALL, 5);
-    mboxMid->Add(mboxListCtlButtons, 1, wxALIGN_CENTER_VERTICAL, 5);
-    mboxMid->Add(mRightPane, 10, wxEXPAND | wxALL, 5);
+    mboxMid->Add(mLeftPane, 1, wxEXPAND | wxALL, 5);
+    mboxMid->Add(mboxListCtlButtons, 0, wxALIGN_CENTER_VERTICAL|wxALIGN_CENTER_HORIZONTAL, 5);
+    mboxMid->Add(mRightPane, 1, wxEXPAND | wxALL, 5);
 //  }
 
 
@@ -218,33 +218,33 @@ void FileSelectionFrame::moveDestToSource(int sel) {
     updateListBoxes();
 }
 
-#define UNUSED_RESULT(x) if (x);
+#define IGNORE_UNUSED_RESULT(x) if (x);
 
 void FileSelectionFrame::playSourceItem(int sel) {
-    UNUSED_RESULT(
+    IGNORE_UNUSED_RESULT(
             system(("vlc \"" + m_sourceFiles[sel].get_path() + "\" &").c_str())
     );
 }
 
 void FileSelectionFrame::playDestItem(int sel) {
-    UNUSED_RESULT(
+    IGNORE_UNUSED_RESULT(
             system(("vlc \"" + m_destFiles[sel].get_path() + "\" &").c_str())
     );
 }
 
-template<typename LB, typename T>
-void fill_pane(const LB &lb, std::vector<T> v) {
-    std::vector<wxString> v2;
-    v2.resize(v.size());
-    std::transform(v.begin(), v.end(), v2.begin(),
+void fill_pane(wxListBox *lb, const std::vector<file_info>& v) {
+    std::vector<wxString> fnames;
+    std::transform(v.begin(), v.end(), std::back_inserter(fnames),
                    [](const file_info &a) { return wxString(a.get_name().c_str(), wxConvUTF8); });
     lb->Clear();
-    lb->Append(v2);
+    lb->Append(fnames);
+    lb->SetMinSize({0, 0}); // to fix distorted layout problem.
 };
 
 void FileSelectionFrame::updateListBoxes() {
     fill_pane(mLeftPane, m_sourceFiles);
     fill_pane(mRightPane, m_destFiles);
+    this->Layout();
 
     size_t total = std::accumulate(m_destFiles.begin(), m_destFiles.end(), (size_t) 0,
                                    [](size_t a, const file_info &b) {
